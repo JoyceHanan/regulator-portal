@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "mkdir -p dist && esbuild index.tsx --bundle --outfile=dist/bundle.js --jsx=automatic --external:react --external:react-dom/* --external:recharts --external:jspdf --external:jspdf-autotable --external:leaflet --external:@google/genai && sed \"s,%%API_KEY%%,$API_KEY,g\" index.html > dist/index.html"
+    "build": "mkdir -p dist && esbuild index.tsx --bundle --outfile=dist/bundle.js --jsx=automatic --external:react --external:react-dom/* --external:recharts --external:jspdf --external:jspdf-autotable --external:leaflet --external:@google/genai && cp index.html dist/index.html"
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.12",

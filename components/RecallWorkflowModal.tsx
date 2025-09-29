@@ -45,32 +45,69 @@ export const RecallWorkflowModal: React.FC<RecallWorkflowModalProps> = ({ batch,
             setError("Please provide a reason before generating communication.");
             return;
         }
-        if (!process.env.API_KEY) {
-            setError('API Key is not configured.');
-            console.error("Gemini API key not found in process.env.API_KEY");
-            return;
-        }
-
+        
         setIsLoading(true);
         setError('');
         
         try {
             const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
             const prompt = `
-                As a regulator for India's AYUSH ministry, draft a formal, multilingual (English and Hindi) communication to be sent to all stakeholders (farmers, labs, distributors) about a product recall.
-                The recall is for batch ID "${batch.id}" of "${batch.plantType}" from farmer "${batch.farmerName}".
-                The reason for the recall is: "${reason}".
-                The communication should be clear, professional, and instruct stakeholders on the next steps. Keep it concise.
-            `;
+Generate a formal, bilingual (English and Hindi) product recall notification for an Ayurvedic product supply chain.
+
+The notification should be professional, clear, and urgent.
+
+Use the following template and placeholders. Do not add any extra explanations or markdown formatting around the output.
+
+**URGENT: PRODUCT RECALL NOTIFICATION**
+
+**Subject:** Immediate Recall of Batch {{batchId}} ({{plantType}})
+
+To all concerned stakeholders,
+
+This is a formal notification from the AYUSH Ministry to initiate an immediate recall of the following batch:
+- **Batch ID:** {{batchId}}
+- **Product:** {{plantType}}
+- **Farmer:** {{farmerName}}
+
+**Reason for Recall:** {{reason}}
+
+All parties must cease distribution and sale of this batch immediately. Please quarantine any remaining stock and await further instructions on return or disposal procedures.
+
+---
+
+**तत्काल: उत्पाद वापस लेने की सूचना**
+
+**विषय:** बैच {{batchId}} ({{plantType}}) की तत्काल वापसी
+
+सभी संबंधित हितधारकों को,
+
+यह आयुष मंत्रालय की ओर से निम्नलिखित बैच को तत्काल वापस लेने के लिए एक औपचारिक सूचना है:
+- **बैच आईडी:** {{batchId}}
+- **उत्पाद:** {{plantType}}
+- **किसान:** {{farmerName}}
+
+**वापसी का कारण:** {{reason}}
+
+सभी पक्षों को इस बैच का वितरण और बिक्री तत्काल बंद कर देनी चाहिए। कृपया शेष स्टॉक को अलग करें और वापसी या निपटान प्रक्रियाओं पर अगले निर्देशों की प्रतीक्षा करें।
+
+---
+Fill in the template with the following details:
+- **{{batchId}}**: ${batch.id}
+- **{{plantType}}**: ${batch.plantType}
+- **{{farmerName}}**: ${batch.farmerName}
+- **{{reason}}**: ${reason}
+`;
+
             const response = await ai.models.generateContent({
                 model: 'gemini-2.5-flash',
                 contents: prompt,
             });
-            
+
             setCommunication(response.text);
             setStep(2);
-        } catch (err) {
-            console.error("Error generating communication:", err);
+
+        } catch (e) {
+            console.error(e);
             setError("Failed to generate communication. Please try again.");
         } finally {
             setIsLoading(false);
@@ -132,12 +169,12 @@ export const RecallWorkflowModal: React.FC<RecallWorkflowModalProps> = ({ batch,
                          <WorkflowStep title="Step 2: Stakeholder Communication" status={step === 2 ? 'active' : step > 2 ? 'complete' : 'pending'}>
                             {communication && (
                                 <>
-                                    <label className="block text-sm font-medium text-gray-700">AI-Generated Communication Draft:</label>
+                                    <label className="block text-sm font-medium text-gray-700">Generated Communication Draft:</label>
                                     <div className="mt-1 p-3 w-full bg-gray-50 rounded-md border border-gray-300 text-sm h-32 overflow-y-auto">
                                         <pre className="whitespace-pre-wrap font-sans">{communication}</pre>
                                     </div>
                                     <div className="mt-3 text-right">
-                                        <button onClick={confirmRecall} className="px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700">
+                                        <button onClick={confirmRecall} className="px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-600">
                                             Execute Recall
                                         </button>
                                     </div>

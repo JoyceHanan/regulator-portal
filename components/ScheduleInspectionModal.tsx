@@ -1,18 +1,65 @@
 import React, { useState } from 'react';
-import { Batch } from '../types';
+import { Batch, Alert } from '../types';
 import { XIcon, ClipboardListIcon, SpinnerIcon } from './icons/IconComponents';
+import { GoogleGenAI } from '@google/genai';
 
 interface ScheduleInspectionModalProps {
   batches: Batch[]; // Should be pre-filtered for inspection eligibility
+  alerts: Alert[];
   onClose: () => void;
   onConfirm: (batchId: string, notes: string) => Promise<void>;
 }
 
-export const ScheduleInspectionModal: React.FC<ScheduleInspectionModalProps> = ({ batches, onClose, onConfirm }) => {
+export const ScheduleInspectionModal: React.FC<ScheduleInspectionModalProps> = ({ batches, alerts, onClose, onConfirm }) => {
     const [selectedBatchId, setSelectedBatchId] = useState<string>(batches.length > 0 ? batches[0].id : '');
     const [notes, setNotes] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [isSuggesting, setIsSuggesting] = useState(false);
     const [error, setError] = useState('');
+
+    const selectedBatch = batches.find(b => b.id === selectedBatchId);
+
+    const handleSuggestNotes = async () => {
+        if (!selectedBatch) {
+            setError("Please select a batch first.");
+            return;
+        }
+        
+        setIsSuggesting(true);
+        setError('');
+        
+        try {
+            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const prompt = `
+You are an AI assistant for a regulator in the AyurTrace system, ensuring the integrity of the Ayurvedic supply chain. Your task is to generate concise and actionable inspection notes. The notes should be based on the provided batch data and recent system-wide alerts, highlighting potential risks or specific areas for verification.
+
+**Batch Information:**
+- ID: ${selectedBatch.id}
+- Plant Type: ${selectedBatch.plantType}
+- Farmer: ${selectedBatch.farmerName}
+- Location: ${selectedBatch.location.state}
+- Full History: ${JSON.stringify(selectedBatch.history, null, 2)}
+
+**Recent System-Wide Alerts (Top 3):**
+${JSON.stringify(alerts.slice(0, 3), null, 2)} 
+
+Based on this data, provide a single, focused paragraph of inspection notes. For example: "Focus on verifying batch volume and concentration of active ingredients due to recent reports of unusually high harvest volume from this farmer. Cross-verify pesticide levels due to regional alerts."
+`;
+
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: prompt,
+            });
+            
+            setNotes(response.text);
+
+        } catch (e) {
+            console.error(e);
+            setError("Failed to generate suggestion. Please try again.");
+        } finally {
+            setIsSuggesting(false);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -77,16 +124,26 @@ export const ScheduleInspectionModal: React.FC<ScheduleInspectionModalProps> = (
 
                              <div>
                                 <label htmlFor="inspection-notes" className="block text-sm font-medium text-gray-700">
-                                    Inspection Notes (Optional)
+                                    Inspection Notes
                                 </label>
                                 <textarea
                                     id="inspection-notes"
                                     rows={4}
                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                    placeholder="e.g., Cross-verifying pesticide levels due to regional alerts."
+                                    placeholder="e.g., Cross-verifying pesticide levels. Click 'Suggest Notes' for an AI-generated draft."
                                     value={notes}
                                     onChange={(e) => setNotes(e.target.value)}
                                 />
+                                <div className="mt-2 flex justify-end">
+                                    <button
+                                        type="button"
+                                        onClick={handleSuggestNotes}
+                                        disabled={isSuggesting || !selectedBatchId}
+                                        className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-300"
+                                    >
+                                        {isSuggesting ? <><SpinnerIcon className="w-4 h-4 mr-1.5"/> Generating...</> : 'Suggest Notes with AI'}
+                                    </button>
+                                </div>
                             </div>
                              {error && <p className="text-sm text-center text-red-500">{error}</p>}
                         </div>

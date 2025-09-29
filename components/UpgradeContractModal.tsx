@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { GoogleGenAI } from '@google/genai';
 import { XIcon, SpinnerIcon, ShieldCheckIcon } from './icons/IconComponents';
+import { GoogleGenAI } from '@google/genai';
 
 interface UpgradeContractModalProps {
   onClose: () => void;
@@ -18,11 +18,6 @@ export const UpgradeContractModal: React.FC<UpgradeContractModalProps> = ({ onCl
             setError('Please provide a reason for the upgrade.');
             return;
         }
-        if (!process.env.API_KEY) {
-            setError('API Key is not configured.');
-            console.error("Gemini API key not found in process.env.API_KEY");
-            return;
-        }
         
         setIsLoading(true);
         setError('');
@@ -31,23 +26,57 @@ export const UpgradeContractModal: React.FC<UpgradeContractModalProps> = ({ onCl
         try {
             const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
             const prompt = `
-                Act as a senior blockchain engineer. Based on the following reason, generate a high-level technical plan for upgrading a smart contract on a public blockchain.
-                The plan should outline key steps, potential risks, and a testing strategy.
-                Reason: "${upgradeReason}"
-                
-                Format the output as a structured plan with clear headings.
-            `;
+Generate a high-level technical plan for a smart contract upgrade for the "AyurTrace" blockchain system.
+
+The plan should follow this structure and include details relevant to the provided reason for the upgrade. Do not add any extra explanations or markdown formatting around the output.
+
+**Smart Contract Upgrade Plan: AyurTrace v2.1**
+
+**Reason for Upgrade:** {{upgradeReason}}
+
+Here is the high-level technical plan for the upcoming smart contract upgrade.
+
+**1. Key Steps:**
+   - **Code Freeze:** Halt all development on the current contract.
+   - **New Contract Development:** Implement the required changes in a new contract version (v2.1).
+   - **Testing:**
+     - Unit tests for all new and modified functions.
+     - Integration tests on a private testnet.
+     - Security audit by a third-party firm.
+   - **Deployment:**
+     - Deploy the new contract to the mainnet.
+     - Execute a data migration script to transfer state from the old contract.
+   - **Verification:**
+     - Verify the new contract on Etherscan.
+     - Announce the new contract address to all stakeholders.
+
+**2. Potential Risks:**
+   - **Data Migration Errors:** A bug in the migration script could lead to data loss. Mitigation: Extensive testing and dry runs.
+   - **Replay Attacks:** Ensure nonces are handled correctly to prevent transaction replay. Mitigation: Follow standard security practices.
+   - **Downtime:** The migration process may require a short period of downtime. Mitigation: Announce a maintenance window in advance.
+
+**3. Testing Strategy:**
+   - A comprehensive test suite will cover all contract functions.
+   - The testnet deployment will simulate real-world usage patterns.
+   - The third-party audit will focus on identifying potential security vulnerabilities.
+
+This plan ensures a safe and efficient upgrade with minimal disruption to the network.
+
+---
+The reason for the upgrade is: "${upgradeReason}".
+Please fill in the "{{upgradeReason}}" placeholder and customize the "Key Steps", "Potential Risks", and "Testing Strategy" sections to be specific to this reason.
+`;
 
             const response = await ai.models.generateContent({
                 model: 'gemini-2.5-flash',
                 contents: prompt,
             });
-
+            
             setGeneratedPlan(response.text);
 
-        } catch (err) {
-            console.error("Error generating upgrade plan with Gemini API:", err);
-            setError('Failed to generate the plan. Please check your API key and try again.');
+        } catch (e) {
+            console.error(e);
+            setError("Failed to generate upgrade plan. Please try again.");
         } finally {
             setIsLoading(false);
         }
@@ -60,7 +89,6 @@ export const UpgradeContractModal: React.FC<UpgradeContractModalProps> = ({ onCl
         }
         // Simulate executing the upgrade
         onSuccess();
-        onClose();
     };
 
     return (
@@ -74,7 +102,7 @@ export const UpgradeContractModal: React.FC<UpgradeContractModalProps> = ({ onCl
                            </div>
                            <div>
                                 <h3 className="text-xl font-semibold text-gray-900">Upgrade Smart Contract</h3>
-                                <p className="text-sm text-gray-500">Use AI to generate a deployment plan and upgrade the network contract.</p>
+                                <p className="text-sm text-gray-500">Generate a deployment plan and upgrade the network contract.</p>
                            </div>
                         </div>
                         <button onClick={onClose} className="p-1 text-gray-400 rounded-md hover:bg-gray-100 hover:text-gray-600">
@@ -103,7 +131,7 @@ export const UpgradeContractModal: React.FC<UpgradeContractModalProps> = ({ onCl
                                 disabled={isLoading}
                                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-300"
                             >
-                                {isLoading ? <><SpinnerIcon className="w-5 h-5 mr-2" /> Generating Plan...</> : 'Generate Upgrade Plan with AI'}
+                                {isLoading ? <><SpinnerIcon className="w-5 h-5 mr-2" /> Generating Plan...</> : 'Generate Upgrade Plan'}
                             </button>
                         </div>
                         
@@ -112,7 +140,7 @@ export const UpgradeContractModal: React.FC<UpgradeContractModalProps> = ({ onCl
                         {generatedPlan && (
                              <div>
                                 <label className="block text-sm font-medium text-gray-700">
-                                    AI-Generated Upgrade Plan
+                                    Generated Upgrade Plan
                                 </label>
                                 <div className="mt-1 p-3 w-full bg-gray-50 rounded-md border border-gray-300 text-sm h-48 overflow-y-auto">
                                     <pre className="whitespace-pre-wrap font-sans">{generatedPlan}</pre>

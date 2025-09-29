@@ -114,3 +114,90 @@ export const MOCK_ALERTS: Alert[] = [
     type: 'warning',
   },
 ];
+
+export const MOCK_RECALL_COMMUNICATION = `
+**URGENT: PRODUCT RECALL NOTIFICATION**
+
+**Subject:** Immediate Recall of Batch {{batchId}} ({{plantType}})
+
+To all concerned stakeholders,
+
+This is a formal notification from the AYUSH Ministry to initiate an immediate recall of the following batch:
+- **Batch ID:** {{batchId}}
+- **Product:** {{plantType}}
+- **Farmer:** {{farmerName}}
+
+**Reason for Recall:** {{reason}}
+
+All parties must cease distribution and sale of this batch immediately. Please quarantine any remaining stock and await further instructions on return or disposal procedures.
+
+---
+
+**तत्काल: उत्पाद वापस लेने की सूचना**
+
+**विषय:** बैच {{batchId}} ({{plantType}}) की तत्काल वापसी
+
+सभी संबंधित हितधारकों को,
+
+यह आयुष मंत्रालय की ओर से निम्नलिखित बैच को तत्काल वापस लेने के लिए एक औपचारिक सूचना है:
+- **बैच आईडी:** {{batchId}}
+- **उत्पाद:** {{plantType}}
+- **किसान:** {{farmerName}}
+
+**वापसी का कारण:** {{reason}}
+
+सभी पक्षों को इस बैच का वितरण और बिक्री तत्काल बंद कर देनी चाहिए। कृपया शेष स्टॉक को अलग करें और वापसी या निपटान प्रक्रियाओं पर अगले निर्देशों की प्रतीक्षा करें।
+`;
+
+export const MOCK_RULE_DRAFT = `
+**AYUSH Ministry Directive - 2023/10-A**
+
+**Effective Date:** Immediately
+**Subject:** New Compliance Rule Regarding "{{ruleTopic}}"
+
+Based on a review of current supply chain practices and in the interest of public safety and product integrity, the following rule is hereby issued under the authority of the AYUSH Ministry:
+
+**Rule:**
+All supply chain partners are mandated to implement procedures addressing the matter of "{{ruleTopic}}". This includes updating documentation, training personnel, and ensuring system-wide adherence within the next 30 days.
+
+**Enforcement:**
+Compliance will be verified through random audits and inspection of blockchain records. Non-compliance will result in penalties, including suspension of licenses.
+
+**Signed,**
+AYUSH Regulator
+`;
+
+
+export const MOCK_UPGRADE_PLAN = `
+**Smart Contract Upgrade Plan: AyurTrace v2.1**
+
+**Reason for Upgrade:** {{upgradeReason}}
+
+Here is the high-level technical plan for the upcoming smart contract upgrade.
+
+**1. Key Steps:**
+   - **Code Freeze:** Halt all development on the current contract.
+   - **New Contract Development:** Implement the required changes in a new contract version (v2.1).
+   - **Testing:**
+     - Unit tests for all new and modified functions.
+     - Integration tests on a private testnet.
+     - Security audit by a third-party firm.
+   - **Deployment:**
+     - Deploy the new contract to the mainnet.
+     - Execute a data migration script to transfer state from the old contract.
+   - **Verification:**
+     - Verify the new contract on Etherscan.
+     - Announce the new contract address to all stakeholders.
+
+**2. Potential Risks:**
+   - **Data Migration Errors:** A bug in the migration script could lead to data loss. Mitigation: Extensive testing and dry runs.
+   - **Replay Attacks:** Ensure nonces are handled correctly to prevent transaction replay. Mitigation: Follow standard security practices.
+   - **Downtime:** The migration process may require a short period of downtime. Mitigation: Announce a maintenance window in advance.
+
+**3. Testing Strategy:**
+   - A comprehensive test suite will cover all contract functions.
+   - The testnet deployment will simulate real-world usage patterns.
+   - The third-party audit will focus on identifying potential security vulnerabilities.
+
+This plan ensures a safe and efficient upgrade with minimal disruption to the network.
+`;
