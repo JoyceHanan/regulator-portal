@@ -114,7 +114,7 @@ export const UpgradeContractModal: React.FC<UpgradeContractModalProps> = ({ onCl
                                 <label className="block text-sm font-medium text-gray-700">
                                     AI-Generated Upgrade Plan
                                 </label>
-                                <div className="mt-1 p-3 w-full bg-gray-50 rounded-md border border-gray-300 text-sm h-48 overflow-y--auto">
+                                <div className="mt-1 p-3 w-full bg-gray-50 rounded-md border border-gray-300 text-sm h-48 overflow-y-auto">
                                     <pre className="whitespace-pre-wrap font-sans">{generatedPlan}</pre>
                                 </div>
                             </div>

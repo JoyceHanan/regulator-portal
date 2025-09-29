@@ -11,16 +11,19 @@ export const TrendAnalysisChart: React.FC<TrendAnalysisChartProps> = ({ batches 
     const dataByDate: { [date: string]: { compliant: number, recalled: number, pending: number } } = {};
 
     batches.forEach(batch => {
-      const date = new Date(batch.history[0].timestamp).toISOString().split('T')[0];
-      if (!dataByDate[date]) {
-        dataByDate[date] = { compliant: 0, recalled: 0, pending: 0 };
-      }
-      if (batch.status === BatchStatus.RECALLED) {
-        dataByDate[date].recalled++;
-      } else if (batch.status === BatchStatus.PROCESSED || batch.status === BatchStatus.SHIPPED) {
-        dataByDate[date].compliant++;
-      } else {
-        dataByDate[date].pending++;
+      // Defensively check if history exists and is not empty
+      if (batch.history && batch.history.length > 0) {
+        const date = new Date(batch.history[0].timestamp).toISOString().split('T')[0];
+        if (!dataByDate[date]) {
+          dataByDate[date] = { compliant: 0, recalled: 0, pending: 0 };
+        }
+        if (batch.status === BatchStatus.RECALLED) {
+          dataByDate[date].recalled++;
+        } else if (batch.status === BatchStatus.PROCESSED || batch.status === BatchStatus.SHIPPED) {
+          dataByDate[date].compliant++;
+        } else {
+          dataByDate[date].pending++;
+        }
       }
     });
 
