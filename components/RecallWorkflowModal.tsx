@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Batch, BatchStatus, HistoryEvent } from '../types';
 import { XIcon, AlertTriangleIcon, CheckCircleIcon, SpinnerIcon } from './icons/IconComponents';
-// Fix: Use correct import for GoogleGenAI
 import { GoogleGenAI } from '@google/genai';
 
 interface RecallWorkflowModalProps {
@@ -56,7 +55,6 @@ export const RecallWorkflowModal: React.FC<RecallWorkflowModalProps> = ({ batch,
         setError('');
         
         try {
-            // Fix: Use correct initialization for GoogleGenAI
             const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
             const prompt = `
                 As a regulator for India's AYUSH ministry, draft a formal, multilingual (English and Hindi) communication to be sent to all stakeholders (farmers, labs, distributors) about a product recall.
