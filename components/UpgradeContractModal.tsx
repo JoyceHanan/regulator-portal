@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { XIcon, SpinnerIcon, ShieldCheckIcon } from './icons/IconComponents';
-import { GoogleGenAI } from '@google/genai';
+import { generateUpgradePlan } from '../services/geminiService';
 
 interface UpgradeContractModalProps {
   onClose: () => void;
@@ -22,58 +22,10 @@ export const UpgradeContractModal: React.FC<UpgradeContractModalProps> = ({ onCl
         setIsLoading(true);
         setError('');
         setGeneratedPlan('');
-
+        
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            const prompt = `
-Generate a high-level technical plan for a smart contract upgrade for the "AyurTrace" blockchain system.
-
-The plan should follow this structure and include details relevant to the provided reason for the upgrade. Do not add any extra explanations or markdown formatting around the output.
-
-**Smart Contract Upgrade Plan: AyurTrace v2.1**
-
-**Reason for Upgrade:** {{upgradeReason}}
-
-Here is the high-level technical plan for the upcoming smart contract upgrade.
-
-**1. Key Steps:**
-   - **Code Freeze:** Halt all development on the current contract.
-   - **New Contract Development:** Implement the required changes in a new contract version (v2.1).
-   - **Testing:**
-     - Unit tests for all new and modified functions.
-     - Integration tests on a private testnet.
-     - Security audit by a third-party firm.
-   - **Deployment:**
-     - Deploy the new contract to the mainnet.
-     - Execute a data migration script to transfer state from the old contract.
-   - **Verification:**
-     - Verify the new contract on Etherscan.
-     - Announce the new contract address to all stakeholders.
-
-**2. Potential Risks:**
-   - **Data Migration Errors:** A bug in the migration script could lead to data loss. Mitigation: Extensive testing and dry runs.
-   - **Replay Attacks:** Ensure nonces are handled correctly to prevent transaction replay. Mitigation: Follow standard security practices.
-   - **Downtime:** The migration process may require a short period of downtime. Mitigation: Announce a maintenance window in advance.
-
-**3. Testing Strategy:**
-   - A comprehensive test suite will cover all contract functions.
-   - The testnet deployment will simulate real-world usage patterns.
-   - The third-party audit will focus on identifying potential security vulnerabilities.
-
-This plan ensures a safe and efficient upgrade with minimal disruption to the network.
-
----
-The reason for the upgrade is: "${upgradeReason}".
-Please fill in the "{{upgradeReason}}" placeholder and customize the "Key Steps", "Potential Risks", and "Testing Strategy" sections to be specific to this reason.
-`;
-
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: prompt,
-            });
-            
-            setGeneratedPlan(response.text);
-
+            const planText = await generateUpgradePlan(upgradeReason);
+            setGeneratedPlan(planText);
         } catch (e) {
             console.error(e);
             setError("Failed to generate upgrade plan. Please try again.");

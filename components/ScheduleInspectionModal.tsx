@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Batch, Alert } from '../types';
 import { XIcon, ClipboardListIcon, SpinnerIcon } from './icons/IconComponents';
-import { GoogleGenAI } from '@google/genai';
+import { suggestInspectionNotes } from '../services/geminiService';
 
 interface ScheduleInspectionModalProps {
   batches: Batch[]; // Should be pre-filtered for inspection eligibility
@@ -27,31 +27,10 @@ export const ScheduleInspectionModal: React.FC<ScheduleInspectionModalProps> = (
         
         setIsSuggesting(true);
         setError('');
-        
+
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            const prompt = `
-You are an AI assistant for a regulator in the AyurTrace system, ensuring the integrity of the Ayurvedic supply chain. Your task is to generate concise and actionable inspection notes. The notes should be based on the provided batch data and recent system-wide alerts, highlighting potential risks or specific areas for verification.
-
-**Batch Information:**
-- ID: ${selectedBatch.id}
-- Plant Type: ${selectedBatch.plantType}
-- Farmer: ${selectedBatch.farmerName}
-- Location: ${selectedBatch.location.state}
-- Full History: ${JSON.stringify(selectedBatch.history, null, 2)}
-
-**Recent System-Wide Alerts (Top 3):**
-${JSON.stringify(alerts.slice(0, 3), null, 2)} 
-
-Based on this data, provide a single, focused paragraph of inspection notes. For example: "Focus on verifying batch volume and concentration of active ingredients due to recent reports of unusually high harvest volume from this farmer. Cross-verify pesticide levels due to regional alerts."
-`;
-
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: prompt,
-            });
-            
-            setNotes(response.text);
+            const notesText = await suggestInspectionNotes(selectedBatch);
+            setNotes(notesText);
 
         } catch (e) {
             console.error(e);

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Batch, BatchStatus, HistoryEvent } from '../types';
 import { XIcon, AlertTriangleIcon, CheckCircleIcon, SpinnerIcon } from './icons/IconComponents';
-import { GoogleGenAI } from '@google/genai';
+import { generateRecallCommunication } from '../services/geminiService';
 
 interface RecallWorkflowModalProps {
   batch: Batch;
@@ -50,60 +50,8 @@ export const RecallWorkflowModal: React.FC<RecallWorkflowModalProps> = ({ batch,
         setError('');
         
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            const prompt = `
-Generate a formal, bilingual (English and Hindi) product recall notification for an Ayurvedic product supply chain.
-
-The notification should be professional, clear, and urgent.
-
-Use the following template and placeholders. Do not add any extra explanations or markdown formatting around the output.
-
-**URGENT: PRODUCT RECALL NOTIFICATION**
-
-**Subject:** Immediate Recall of Batch {{batchId}} ({{plantType}})
-
-To all concerned stakeholders,
-
-This is a formal notification from the AYUSH Ministry to initiate an immediate recall of the following batch:
-- **Batch ID:** {{batchId}}
-- **Product:** {{plantType}}
-- **Farmer:** {{farmerName}}
-
-**Reason for Recall:** {{reason}}
-
-All parties must cease distribution and sale of this batch immediately. Please quarantine any remaining stock and await further instructions on return or disposal procedures.
-
----
-
-**तत्काल: उत्पाद वापस लेने की सूचना**
-
-**विषय:** बैच {{batchId}} ({{plantType}}) की तत्काल वापसी
-
-सभी संबंधित हितधारकों को,
-
-यह आयुष मंत्रालय की ओर से निम्नलिखित बैच को तत्काल वापस लेने के लिए एक औपचारिक सूचना है:
-- **बैच आईडी:** {{batchId}}
-- **उत्पाद:** {{plantType}}
-- **किसान:** {{farmerName}}
-
-**वापसी का कारण:** {{reason}}
-
-सभी पक्षों को इस बैच का वितरण और बिक्री तत्काल बंद कर देनी चाहिए। कृपया शेष स्टॉक को अलग करें और वापसी या निपटान प्रक्रियाओं पर अगले निर्देशों की प्रतीक्षा करें।
-
----
-Fill in the template with the following details:
-- **{{batchId}}**: ${batch.id}
-- **{{plantType}}**: ${batch.plantType}
-- **{{farmerName}}**: ${batch.farmerName}
-- **{{reason}}**: ${reason}
-`;
-
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: prompt,
-            });
-
-            setCommunication(response.text);
+            const communicationText = await generateRecallCommunication(batch, reason);
+            setCommunication(communicationText);
             setStep(2);
 
         } catch (e) {

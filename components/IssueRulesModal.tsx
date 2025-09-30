@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { XIcon, SpinnerIcon } from './icons/IconComponents';
-import { GoogleGenAI } from '@google/genai';
+import { draftRule } from '../services/geminiService';
 
 interface IssueRulesModalProps {
   onClose: () => void;
@@ -24,40 +24,8 @@ export const IssueRulesModal: React.FC<IssueRulesModalProps> = ({ onClose, onSuc
         setDraftedRule('');
 
         try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            const prompt = `
-Draft a formal directive for the AYUSH Ministry based on a specific topic. The directive should be clear, concise, and ready for official issuance.
-
-Use the following template. Do not add any extra explanations or markdown formatting around the output.
-
-**AYUSH Ministry Directive - 2023/10-A**
-
-**Effective Date:** Immediately
-**Subject:** New Compliance Rule Regarding "{{ruleTopic}}"
-
-Based on a review of current supply chain practices and in the interest of public safety and product integrity, the following rule is hereby issued under the authority of the AYUSH Ministry:
-
-**Rule:**
-All supply chain partners are mandated to implement procedures addressing the matter of "{{ruleTopic}}". This includes updating documentation, training personnel, and ensuring system-wide adherence within the next 30 days.
-
-**Enforcement:**
-Compliance will be verified through random audits and inspection of blockchain records. Non-compliance will result in penalties, including suspension of licenses.
-
-**Signed,**
-AYUSH Regulator
-
----
-The topic for the new rule is: "${ruleTopic}".
-Please fill in the "{{ruleTopic}}" placeholders and expand on the "Rule:" section to create a specific, actionable directive based on this topic.
-`;
-
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: prompt,
-            });
-            
-            setDraftedRule(response.text);
-
+            const ruleText = await draftRule(ruleTopic);
+            setDraftedRule(ruleText);
         } catch (e) {
             console.error(e);
             setError("Failed to draft rule. Please try again.");

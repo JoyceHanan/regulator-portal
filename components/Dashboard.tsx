@@ -9,7 +9,6 @@ import { BatchTable } from './BatchTable';
 import { AlertsPanel } from './AlertsPanel';
 import { BatchDetailsModal } from './BatchDetailsModal';
 import { RecallWorkflowModal } from './RecallWorkflowModal';
-import { TrendAnalysisChart } from './TrendAnalysisChart';
 import { RegulatorActions } from './RegulatorActions';
 import { ScheduleInspectionModal } from './ScheduleInspectionModal';
 import { IssueRulesModal } from './IssueRulesModal';
@@ -197,7 +196,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onLogout }) => {
                     />
                 </div>
                 </div>
-                <TrendAnalysisChart batches={batches} />
             </div>
         )}
       </main>
